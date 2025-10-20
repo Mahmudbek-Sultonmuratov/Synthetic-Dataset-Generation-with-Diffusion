@@ -17,17 +17,19 @@ This file will be updated weekly with milestones, owners, and due dates.
 
 ## RACI Role Table
 
-| Task                          | Team Lead | Diffusion Engineer | Classification Engineer |
-|------------------------------|-----------|---------------------|--------------------------|
-| Proposal & Planning          | R         | C                   | C                        |
-| Baseline Implementation      | C         | I                   | R                        |
-| Diffusion Pipeline           | I         | A                   | C                        |
-| Dataset Augmentation         | C         | R                   | R                        |
-| Model Training & Evaluation  | I         | C                   | A                        |
-| Ablation Studies             | C         | R                   | R                        |
-| Final Report & Presentation  | A         | C                   | C                        |
+| Task                         | Mahmudbek (Team Lead / Classification) | Emil (Diffusion Pipeline) |
+|------------------------------|----------------------------------------|----------------------------|
+| Proposal & Planning          | A / R                                  | C                          |
+| Baseline Implementation      | R                                      | I                          |
+| Diffusion Pipeline           | C                                      | A / R                      |
+| Dataset Augmentation         | R                                      | R                          |
+| Model Training & Evaluation  | A / R                                  | C                          |
+| Ablation Studies             | R                                      | R                          |
+| Final Report & Presentation  | A / R                                  | C                          |
+| Repository Maintenance       | R                                      | R                          |
 
-Legend: R = Responsible, A = Accountable, C = Consulted, I = Informed
+**Legend:**  
+**A** – Accountable | **R** – Responsible | **C** – Consulted | **I** – Informed
 
 ## Weekly Check-ins
 
