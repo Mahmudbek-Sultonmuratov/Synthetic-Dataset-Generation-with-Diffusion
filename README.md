@@ -1,59 +1,176 @@
-# Synthetic-Dataset-Generation-with-Diffusion
-computer vision project 220222 220211
+# Synthetic-Dataset-Generation-with-Diffusion  
+**Computer Vision Project — 220222, 220211**
 
-# 🧬 Synthetic Dataset Generation with Diffusion
+**Synthetic Dataset Generation with Diffusion**
 
-This project explores the use of text-to-image diffusion models to generate synthetic medical images for rare disease classification. We compare real-only training with synthetic-augmented pipelines using Stable Diffusion XL (SDXL).
+This project investigates **synthetic medical image generation** using a **latent-space diffusion model** trained on chest X-ray data.  
+Instead of generating images directly in pixel space, we employ a **two-stage pipeline** consisting of:
 
-## Datasets Used
+- a **Variational Autoencoder (VAE)**  
+- followed by a **conditional Denoising Diffusion Probabilistic Model (DDPM)** operating in latent space.
 
-This project uses publicly available medical imaging datasets licensed for academic research:
+The primary objective is to generate **disease-conditioned synthetic chest X-ray images** that preserve anatomical structure and pathological patterns, enabling **safer data sharing** and **dataset augmentation** for medical imaging research.
 
-- **ChestX-ray14**  
-  A dataset of 112,000 frontal-view chest X-ray images labeled across 14 disease categories, including rare conditions such as pneumothorax and fibrosis.  
-  🔗 [Access ChestX-ray14](https://nihcc.app.box.com/v/ChestXray-NIHCC)
+---
 
-- **HAM10000**  
-  A dermatoscopic image dataset of 10,015 skin lesions spanning 7 diagnostic classes, including rare melanoma subtypes.  
-  🔗 [Access HAM10000 on Kaggle](https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000)
+## Dataset Used
 
-- **MIMIC-CXR**  
-  A large-scale dataset of chest radiographs paired with clinical reports, sourced from Beth Israel Deaconess Medical Center. Requires credentialed access and completion of a data use agreement.  
-  🔗 [Access MIMIC-CXR via PhysioNet](https://physionet.org/content/mimic-cxr/2.0.0/)
+This project uses a publicly available medical imaging dataset licensed for academic research:
 
+### **ChestX-ray14 (NIH)**
+
+- A large-scale dataset containing **over 112,000 frontal-view chest X-ray images**
+- Annotated with **15 thoracic disease labels** in a **multi-label setting**
+- Diseases include:
+  - Pneumonia
+  - Effusion
+  - Cardiomegaly
+  - Edema
+  - Pneumothorax
+  - and others
+
+🔗 https://nihcc.app.box.com/v/ChestXray-NIHCC
+
+### Image Properties
+- Grayscale images  
+- Resolution: **256 × 256**  
+- Multi-label annotations per image  
+
+---
+
+## Method Overview
+
+We implement a **two-stage generative pipeline**:
+
+### Variational Autoencoder (VAE)
+
+- Compresses **256 × 256** chest X-rays into a **256-dimensional latent representation**
+- Trained with:
+  - Mean Squared Error (MSE) reconstruction loss
+  - **LPIPS perceptual loss**
+  - **β-weighted KL divergence**
+- Uses **ResNet-style residual blocks** for:
+  - Training stability
+  - Improved structure preservation
+
+---
+
+### Conditional Diffusion Model (DDPM)
+
+- Trained **entirely in latent space**
+- Conditioned on disease labels (**one-hot vectors**)
+- Learns to denoise latent vectors using the **DDPM framework**
+- Enables **controlled generation**, e.g.:
+  - *“Generate Pneumonia”*
+
+---
+
+### Decoding
+
+- Sampled latent vectors are rescaled to match the VAE latent distribution
+- The **VAE decoder** reconstructs realistic synthetic X-ray images
+
+---
+
+## Pipeline Diagram (Conceptual)
+
+Real Chest X-ray
+↓
+VAE Encoder (ResNet-style)
+↓
+256-D Latent Space
+↓
+Conditional DDPM
+↓
+Sampled Latent
+↓
+VAE Decoder
+↓
+Synthetic Chest X-ray
+---
+
+##  Evaluation Strategy
+
+Since traditional accuracy metrics are not meaningful for generative models, we rely on **qualitative and proxy evaluation metrics**, including:
+
+- Pixel intensity statistics (min / max / mean / std)
+- Edge density comparison (synthetic vs real)
+- Structural Similarity Index (**SSIM**)
+- Histogram **Wasserstein distance**
+- Visual side-by-side comparison with real images
+
+These measures help assess:
+- Contrast realism
+- Structural coherence
+- Anatomical plausibility
+
+---
+
+## Key Challenges Encountered
+
+Initial diffusion experiments produced **blurry or nearly blank images**, revealing that the **latent space quality** was the main bottleneck.
+
+This was resolved by:
+
+- Retraining the VAE with:
+  - Residual connections
+  - LPIPS perceptual loss
+  - Improved KL regularization
+- Re-extracting all latent representations
+- Retraining the diffusion model on the improved latent space
+
+This significantly improved **image sharpness, structure, and contrast**.
+
+---
 
 ## Environment Setup
 
-We recommend using Python 3.10+ and setting up a virtual environment:
+We recommend **Python 3.10+** and a virtual environment:
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
-pip install -r requirements.txt
+source venv/bin/activate   # Linux / macOS
+# or
+venv\Scripts\activate      # Windows
 
-pip install torch transformers diffusers datasets scikit-learn matplotlib tensorflow
+Install the required dependencies:
 
-# train.py
+```bash
+pip install torch torchvision numpy matplotlib pandas tqdm
+pip install lpips scikit-image scipy
 
-import torch
-from torchvision import transforms
-from torch.utils.data import DataLoader
-from model import CNNClassifier  # define your model separately
+## Repository Structure
+├── vae_training.ipynb
+├── latent_extraction.ipynb
+├── diffusion_training.ipynb
+├── sampling_and_evaluation.ipynb
+├── checkpoints/
+│   ├── best_model.pt
+│   └── ddpm_cond.pt
+├── latents/
+│   ├── latents_train.pt
+│   └── latents_val.pt
+├── results/
+│   ├── synthetic_images/
+│   └── evaluation_figures/
+└── README.md
 
-def train():
-    # TODO: Load dataset
-    # TODO: Apply transforms
-    # TODO: Initialize model, optimizer, loss
-    # TODO: Train loop
-    pass
+## Future Work
 
-if __name__ == "__main__":
-    train()
+Higher-resolution latent diffusion
 
-# evaluate.py
+Text-based conditioning (clinical report → image)
 
-def evaluate(model, test_loader):
-    # TODO: Compute AUROC, F1-score, Accuracy
-    pass
+Classifier-free guidance
+
+Quantitative evaluation using downstream classifiers
+
+Expert clinical validation
+
+## Disclaimer
+
+This project is intended for educational and research purposes only.
+Generated images must not be used for medical diagnosis or clinical decision-making.
+
 
 
