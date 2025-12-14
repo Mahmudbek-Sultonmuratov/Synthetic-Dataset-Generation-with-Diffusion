@@ -135,25 +135,9 @@ venv\Scripts\activate      # Windows
 
 Install the required dependencies:
 
-```bash
 pip install torch torchvision numpy matplotlib pandas tqdm
 pip install lpips scikit-image scipy
-
-## Repository Structure
-├── vae_training.ipynb
-├── latent_extraction.ipynb
-├── diffusion_training.ipynb
-├── sampling_and_evaluation.ipynb
-├── checkpoints/
-│   ├── best_model.pt
-│   └── ddpm_cond.pt
-├── latents/
-│   ├── latents_train.pt
-│   └── latents_val.pt
-├── results/
-│   ├── synthetic_images/
-│   └── evaluation_figures/
-└── README.md
+```
 
 ## Future Work
 
