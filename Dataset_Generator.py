@@ -3,6 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+import pandas as pd
+import numpy as np
+from PIL import Image
 
 # =========================
 # 0) DEVICE
@@ -210,3 +214,42 @@ for idx, cls in enumerate(classes):
     show_grid(imgs, cls)
 
 print("\n✅ Done.")
+# ===============================
+# SAVE SYNTHETIC DATASET (FIXED)
+# ===============================
+
+save_root = "/home/ifar3/Documents/project/synthetic_dataset"
+img_root  = os.path.join(save_root, "images")
+os.makedirs(img_root, exist_ok=True)
+
+records = []
+
+for cls_name, imgs in synthetic_images.items():
+    cls_dir = os.path.join(img_root, cls_name)
+    os.makedirs(cls_dir, exist_ok=True)
+
+    for i in range(len(imgs)):
+        # imgs[i] is a torch Tensor: (1, H, W)
+        img = imgs[i][0]                 # (H, W)
+        img = img.cpu().numpy()          # → NumPy
+        img = (img * 255.0).clip(0, 255).astype(np.uint8)
+
+        fname = f"{cls_name}_{i:04d}.png"
+        fpath = os.path.join(cls_dir, fname)
+
+        Image.fromarray(img).save(fpath)
+
+        records.append({
+            "image_path": fpath,
+            "label": cls_name
+        })
+
+# Save metadata
+df = pd.DataFrame(records)
+csv_path = os.path.join(save_root, "synthetic_metadata.csv")
+df.to_csv(csv_path, index=False)
+
+print("✅ Synthetic dataset saved successfully")
+print("📁 Root folder:", save_root)
+print("🖼️  Total images:", len(df))
+print("📄 Metadata CSV:", csv_path)
